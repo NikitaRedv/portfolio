@@ -1,38 +1,110 @@
+
 {% extends "portfolio/base.html" %}
 {% load static %}
+
+{% block title %}My Projects | Portfolio{% endblock %}
+
 {% block content %}
-<div class="text-center md-5">
-    <h2 class="fw-bold">My skills</h2>
-    <p class="text-muted">Here are some of the Projects I've developed:</p>
-</div>
-<div>
-    <div class="col">
-        <div class="card h-100 shadow-sm border-0">
-            <img src="{% static 'images/project1.png' %}" class="card-img-top projects-img">
-            <div>
-                <h5 class="card-title fw-bold">Booking-system</h5>
-                <p class="card-text"> An online booking system is a software tool that lets
-                    customers schedule, manage, and pay for appointments or services
-                    directly through the web 24/7.</p>
-            </div>
-            <div class="card-footer bd-white border-0 pb-3">
-                <a href="#" class="btn btn-outline-primary btn-sm">Watch Siter</a>
+
+<div class="container py-5">
+
+    <!-- Page Title -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">My Projects</h2>
+        <p class="text-muted">
+            Here are some of the projects I've developed:
+        </p>
+    </div>
+
+    <!-- Projects -->
+    <div class="row g-4">
+
+        <!-- Project 1: Booking System -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+
+                <img
+                    src="{% static 'images/project1.png' %}"
+                    class="card-img-top projects-img"
+                    alt="Booking System"
+                    style="height: 250px; object-fit: cover;"
+                >
+
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">
+                        Booking System
+                    </h5>
+
+                    <p class="card-text">
+                        A Django-based booking system that
+                        allows users to view available options
+                        and submit booking requests.
+                    </p>
+
+                    <p class="text-muted">
+                        <strong>Technologies:</strong>
+                        Python, Django, HTML, CSS
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white border-0 pb-3">
+                    <a
+                        href="https://github.com/NikitaRedv/booking-system"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-outline-primary btn-sm"
+                    >
+                        View Code
+                    </a>
+                </div>
+
             </div>
         </div>
-    </div>
-    <div class="col">
-        <div class="card h-100 shadow-sm border-0">
-            <img src="{% static 'images/project2.png' %}" class="card-img-top projects-img">
-            <div>
-                <h5 class="card-title fw-bold">Web-site</h5>
-                <p class="card-text"> An online booking system is a software tool that lets
-                    customers schedule, manage, and pay for appointments or services
-                    directly through the web 24/7.</p>
-            </div>
-            <div class="card-footer bd-white border-0 pb-3">
-                <a href="#" class="btn btn-outline-primary btn-sm">Watch Code</a>
+
+        <!-- Project 2: Portfolio Website -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+
+                <img
+                    src="{% static 'images/project2.png' %}"
+                    class="card-img-top projects-img"
+                    alt="Portfolio Website"
+                    style="height: 250px; object-fit: cover;"
+                >
+
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">
+                        Portfolio Website
+                    </h5>
+
+                    <p class="card-text">
+                        A personal portfolio website built
+                        with Django and Bootstrap to showcase
+                        my programming skills and projects.
+                    </p>
+
+                    <p class="text-muted">
+                        <strong>Technologies:</strong>
+                        Python, Django, Bootstrap, HTML, CSS
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white border-0 pb-3">
+                    <a
+                        href="https://github.com/NikitaRedv/portfolio"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-outline-primary btn-sm"
+                    >
+                        View Code
+                    </a>
+                </div>
+
             </div>
         </div>
+
     </div>
+
 </div>
+
 {% endblock %}
