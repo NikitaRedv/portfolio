@@ -1,55 +1,43 @@
 {% extends "portfolio/base.html" %}
-{% load static %}
-
+{% block title %}My Skills | Portfolio{% endblock %}
 {% block content %}
-<div class="text-center mb-5">
-    <h2 class="fw-bold">My Skills</h2>
-    <p class="text-muted">
-        Here are some of the skills I've developed:
-    </p>
-</div>
+<div class="container py-5">
 
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm border-0 p-4 h-100">
-            <h3 class="text-primary mb-3">Hard Skills</h3>
-
-            <ul class="list-group fs-5">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Python (OOP, Basics)
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Django Framework
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    HTML &amp; CSS
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Git &amp; GitHub
-                </li>
-            </ul>
-        </div>
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">My Skills</h2>
+        <p class="text-muted">
+            Here are some of the skills I've developed:
+        </p>
     </div>
 
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm border-0 p-4 h-100">
-            <h3 class="text-primary mb-3">Soft Skills</h3>
+    <div class="row g-4">
 
-            <ul class="list-group fs-5">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Time Management
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Communication
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Critical Thinking
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Open-Mindedness
-                </li>
-            </ul>
+        <div class="col-12 col-md-6">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <h3 class="text-primary mb-3">Hard Skills</h3>
+
+                <ul class="list-group fs-5">
+                    <li class="list-group-item">Python (OOP, Basics)</li>
+                    <li class="list-group-item">Django Framework</li>
+                    <li class="list-group-item">HTML &amp; CSS</li>
+                    <li class="list-group-item">Git &amp; GitHub</li>
+                </ul>
+            </div>
         </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <h3 class="text-primary mb-3">Soft Skills</h3>
+
+                <ul class="list-group fs-5">
+                    <li class="list-group-item">Time Management</li>
+                    <li class="list-group-item">Communication</li>
+                    <li class="list-group-item">Critical Thinking</li>
+                    <li class="list-group-item">Open-Mindedness</li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

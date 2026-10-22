@@ -1,0 +1,694 @@
+from pathlib import Path
+
+content = r'''{% extends 'portfolio/base.html' %}
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1>🎮 Game Zone</h1>
+        <p>Choose a game and have fun!</p>
+    </div>
+
+    <!-- Tic-Tac-Toe -->
+    <section id="tic-tac-toe" class="game-section ttt-section mx-auto mt-5">
+        <h2 class="text-center mb-3">❌ Tic-Tac-Toe</h2>
+        <p id="ttt-status" class="text-center">Your turn — X</p>
+
+        <div class="ttt-board">
+            <button type="button" class="ttt-cell" data-cell="0"></button>
+            <button type="button" class="ttt-cell" data-cell="1"></button>
+            <button type="button" class="ttt-cell" data-cell="2"></button>
+            <button type="button" class="ttt-cell" data-cell="3"></button>
+            <button type="button" class="ttt-cell" data-cell="4"></button>
+            <button type="button" class="ttt-cell" data-cell="5"></button>
+            <button type="button" class="ttt-cell" data-cell="6"></button>
+            <button type="button" class="ttt-cell" data-cell="7"></button>
+            <button type="button" class="ttt-cell" data-cell="8"></button>
+        </div>
+
+        <div class="ttt-score">
+            <span>You: <strong id="ttt-wins">0</strong></span>
+            <span>Draws: <strong id="ttt-draws">0</strong></span>
+            <span>Computer: <strong id="ttt-losses">0</strong></span>
+        </div>
+
+        <button type="button" id="ttt-reset" class="btn btn-primary d-block mx-auto mt-3">
+            New Game
+        </button>
+    </section>
+
+    <!-- Memory -->
+    <section id="memory" class="game-section memory-section mx-auto mt-5">
+        <h2 class="text-center mb-3">🧠 Memory</h2>
+
+        <div class="memory-info">
+            <span>Moves: <strong id="memory-moves">0</strong></span>
+            <span>Time: <strong id="memory-time">00:00</strong></span>
+            <span>Pairs: <strong id="memory-pairs">0 / 8</strong></span>
+        </div>
+
+        <div id="memory-board" class="memory-board"></div>
+
+        <p id="memory-status" class="text-center mt-3">
+            Find all matching pairs!
+        </p>
+
+        <button type="button" id="memory-reset" class="btn btn-primary d-block mx-auto mt-3">
+            New Game
+        </button>
+    </section>
+
+    <!-- Snake -->
+    <section id="snake" class="game-section snake-section mx-auto mt-5">
+        <h2 class="text-center mb-3">🐍 Snake</h2>
+
+        <div class="snake-info">
+            <span>Score: <strong id="snake-score">0</strong></span>
+            <span id="snake-status">Press Start to play</span>
+        </div>
+
+        <div class="snake-board">
+            <canvas id="snake-canvas" width="400" height="400"></canvas>
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="button" id="snake-start" class="btn btn-primary">
+                Start / Restart
+            </button>
+        </div>
+
+        <p class="text-center mt-3 snake-help">
+            Use arrow keys or WASD to move. Eat the red food and avoid the walls!
+        </p>
+
+        <div class="snake-mobile-controls">
+            <button type="button" data-dir="up" aria-label="Up">▲</button>
+            <div>
+                <button type="button" data-dir="left" aria-label="Left">◀</button>
+                <button type="button" data-dir="down" aria-label="Down">▼</button>
+                <button type="button" data-dir="right" aria-label="Right">▶</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+/* Shared appearance and width */
+.game-section {
+    width: 100%;
+    max-width: 540px;
+    box-sizing: border-box;
+    padding: 24px;
+    color: #fff;
+    background: rgba(20, 20, 30, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Tic-Tac-Toe */
+.ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    max-width: 330px;
+    margin: 20px auto;
+}
+
+.ttt-cell {
+    aspect-ratio: 1;
+    min-width: 0;
+    border: 1px solid #6c63ff;
+    border-radius: 12px;
+    background: #10131b;
+    color: #a59cff;
+    font-size: clamp(32px, 8vw, 52px);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.ttt-cell:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.ttt-score,
+.memory-info,
+.snake-info {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ttt-score,
+.memory-info {
+    font-size: 14px;
+}
+
+#ttt-status,
+#memory-status,
+#snake-status {
+    color: #c4beff;
+}
+
+/* Memory */
+.memory-info {
+    margin-bottom: 16px;
+}
+
+.memory-board {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+}
+
+.memory-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    min-width: 0;
+    padding: 0;
+    border: 1px solid #6c63ff;
+    border-radius: 12px;
+    background: #10131b;
+    color: #a59cff;
+    font-size: clamp(22px, 5vw, 36px);
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.memory-card:hover {
+    transform: translateY(-2px);
+}
+
+.memory-card.revealed {
+    background: #34304f;
+}
+
+.memory-card.matched {
+    background: #203b37;
+    border-color: #58c9a5;
+    cursor: default;
+}
+
+/* Snake */
+.snake-info {
+    margin-bottom: 12px;
+}
+
+.snake-board {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #10131b;
+    border: 2px solid #6c63ff;
+}
+
+#snake-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.snake-help {
+    color: #c9c9d4;
+    font-size: 14px;
+}
+
+.snake-mobile-controls {
+    display: none;
+    text-align: center;
+    margin-top: 16px;
+}
+
+.snake-mobile-controls button {
+    width: 48px;
+    height: 44px;
+    margin: 3px;
+    color: white;
+    background: #34304f;
+    border: 1px solid #6c63ff;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+@media (max-width: 600px) {
+    .game-section {
+        padding: 14px;
+    }
+
+    .memory-board {
+        gap: 7px;
+    }
+
+    .snake-mobile-controls {
+        display: block;
+    }
+}
+</style>
+
+<script>
+(() => {
+    const board = document.querySelectorAll(".ttt-cell");
+    if (!board.length || board[0].dataset.initialized) return;
+    board[0].dataset.initialized = "true";
+
+    const status = document.getElementById("ttt-status");
+    const winsEl = document.getElementById("ttt-wins");
+    const drawsEl = document.getElementById("ttt-draws");
+    const lossesEl = document.getElementById("ttt-losses");
+
+    let cells = Array(9).fill("");
+    let gameOver = false;
+    let wins = 0;
+    let draws = 0;
+    let losses = 0;
+
+    const lines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+
+    function winner(state) {
+        for (const [a, b, c] of lines) {
+            if (state[a] && state[a] === state[b] && state[a] === state[c]) {
+                return state[a];
+            }
+        }
+        return state.every(Boolean) ? "draw" : null;
+    }
+
+    function render() {
+        board.forEach((button, i) => {
+            button.textContent = cells[i];
+            button.disabled = gameOver || Boolean(cells[i]);
+            button.style.color = cells[i] === "X" ? "#a59cff" : "#ff7794";
+        });
+    }
+
+    function finish(result) {
+        gameOver = true;
+
+        if (result === "X") {
+            wins++;
+            status.textContent = "You win! 🎉";
+        } else if (result === "O") {
+            losses++;
+            status.textContent = "Computer wins!";
+        } else {
+            draws++;
+            status.textContent = "It's a draw!";
+        }
+
+        winsEl.textContent = wins;
+        drawsEl.textContent = draws;
+        lossesEl.textContent = losses;
+        render();
+    }
+
+    function computerMove() {
+        function findWinningMove(mark) {
+            for (let i = 0; i < 9; i++) {
+                if (!cells[i]) {
+                    cells[i] = mark;
+                    const winsHere = winner(cells) === mark;
+                    cells[i] = "";
+                    if (winsHere) return i;
+                }
+            }
+            return -1;
+        }
+
+        let move = findWinningMove("O");
+        if (move < 0) move = findWinningMove("X");
+        if (move < 0 && !cells[4]) move = 4;
+
+        if (move < 0) {
+            const corners = [0, 2, 6, 8].filter(i => !cells[i]);
+            if (corners.length) {
+                move = corners[Math.floor(Math.random() * corners.length)];
+            }
+        }
+
+        if (move < 0) {
+            const empty = cells.map((value, i) => value ? -1 : i).filter(i => i >= 0);
+            if (empty.length) move = empty[Math.floor(Math.random() * empty.length)];
+        }
+
+        if (move >= 0) cells[move] = "O";
+
+        const result = winner(cells);
+        if (result) {
+            finish(result);
+        } else {
+            status.textContent = "Your turn — X";
+        }
+        render();
+    }
+
+    function playerMove(event) {
+        const index = Number(event.currentTarget.dataset.cell);
+        if (gameOver || cells[index]) return;
+
+        cells[index] = "X";
+        const result = winner(cells);
+
+        if (result) {
+            finish(result);
+            return;
+        }
+
+        render();
+        status.textContent = "Computer's turn...";
+        window.setTimeout(() => {
+            if (!gameOver) computerMove();
+        }, 300);
+    }
+
+    function reset() {
+        cells = Array(9).fill("");
+        gameOver = false;
+        status.textContent = "Your turn — X";
+        render();
+    }
+
+    board.forEach(button => button.addEventListener("click", playerMove));
+    document.getElementById("ttt-reset").addEventListener("click", reset);
+    render();
+})();
+</script>
+
+<script>
+(() => {
+    const canvas = document.getElementById("snake-canvas");
+    if (!canvas || canvas.dataset.initialized) return;
+    canvas.dataset.initialized = "true";
+
+    const ctx = canvas.getContext("2d");
+    const size = 20;
+    const cells = canvas.width / size;
+    const scoreElement = document.getElementById("snake-score");
+    const statusElement = document.getElementById("snake-status");
+    const startButton = document.getElementById("snake-start");
+
+    let snake;
+    let direction;
+    let nextDirection;
+    let food;
+    let score;
+    let timer;
+    let running = false;
+
+    function randomFood() {
+        let position;
+        do {
+            position = {
+                x: Math.floor(Math.random() * cells),
+                y: Math.floor(Math.random() * cells)
+            };
+        } while (snake.some(part => part.x === position.x && part.y === position.y));
+        return position;
+    }
+
+    function drawCell(x, y, color, radius = 4) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.roundRect(x * size + 1, y * size + 1, size - 2, size - 2, radius);
+        ctx.fill();
+    }
+
+    function draw() {
+        ctx.fillStyle = "#10131b";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = "rgba(255,255,255,0.04)";
+        for (let i = 0; i <= cells; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * size, 0);
+            ctx.lineTo(i * size, canvas.height);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(0, i * size);
+            ctx.lineTo(canvas.width, i * size);
+            ctx.stroke();
+        }
+
+        if (food) drawCell(food.x, food.y, "#ff4f70", 8);
+
+        snake.forEach((part, index) => {
+            drawCell(part.x, part.y, index === 0 ? "#a59cff" : "#6c63ff");
+        });
+    }
+
+    function startGame() {
+        clearInterval(timer);
+        snake = [
+            { x: 10, y: 10 },
+            { x: 9, y: 10 },
+            { x: 8, y: 10 }
+        ];
+        direction = { x: 1, y: 0 };
+        nextDirection = { x: 1, y: 0 };
+        score = 0;
+        running = true;
+        food = randomFood();
+        scoreElement.textContent = score;
+        statusElement.textContent = "Good luck!";
+        draw();
+        timer = setInterval(tick, 120);
+    }
+
+    function tick() {
+        direction = nextDirection;
+        const head = {
+            x: snake[0].x + direction.x,
+            y: snake[0].y + direction.y
+        };
+
+        const eating = head.x === food.x && head.y === food.y;
+        const body = eating ? snake : snake.slice(0, -1);
+
+        if (
+            head.x < 0 || head.x >= cells ||
+            head.y < 0 || head.y >= cells ||
+            body.some(part => part.x === head.x && part.y === head.y)
+        ) {
+            running = false;
+            clearInterval(timer);
+            statusElement.textContent = "Game over! Score: " + score;
+            return;
+        }
+
+        snake.unshift(head);
+
+        if (eating) {
+            score += 10;
+            scoreElement.textContent = score;
+
+            if (snake.length === cells * cells) {
+                running = false;
+                clearInterval(timer);
+                statusElement.textContent = "You win! 🎉";
+                draw();
+                return;
+            }
+
+            food = randomFood();
+        } else {
+            snake.pop();
+        }
+
+        draw();
+    }
+
+    function changeDirection(dir) {
+        if (!running) return;
+
+        const directions = {
+            up: { x: 0, y: -1 },
+            down: { x: 0, y: 1 },
+            left: { x: -1, y: 0 },
+            right: { x: 1, y: 0 }
+        };
+
+        const candidate = directions[dir];
+        if (!candidate) return;
+
+        if (candidate.x === -direction.x && candidate.y === -direction.y) return;
+        nextDirection = candidate;
+    }
+
+    document.addEventListener("keydown", event => {
+        const keys = {
+            ArrowUp: "up", w: "up", W: "up",
+            ArrowDown: "down", s: "down", S: "down",
+            ArrowLeft: "left", a: "left", A: "left",
+            ArrowRight: "right", d: "right", D: "right"
+        };
+
+        const dir = keys[event.key];
+        const snakeSection = document.getElementById("snake");
+        if (dir && snakeSection.getBoundingClientRect().top < window.innerHeight) {
+            event.preventDefault();
+            changeDirection(dir);
+        }
+    });
+
+    document.querySelectorAll(".snake-mobile-controls button").forEach(button => {
+        button.addEventListener("click", () => changeDirection(button.dataset.dir));
+    });
+
+    startButton.addEventListener("click", startGame);
+
+    food = { x: 15, y: 10 };
+    snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }];
+    draw();
+})();
+</script>
+
+<script>
+(() => {
+    const board = document.getElementById("memory-board");
+    if (!board || board.dataset.initialized) return;
+    board.dataset.initialized = "true";
+
+    const movesEl = document.getElementById("memory-moves");
+    const timeEl = document.getElementById("memory-time");
+    const pairsEl = document.getElementById("memory-pairs");
+    const statusEl = document.getElementById("memory-status");
+    const resetBtn = document.getElementById("memory-reset");
+    const symbols = ["🐱", "🐶", "🦊", "🐼", "🐸", "🦁", "🐵", "🐰"];
+
+    let firstCard = null;
+    let lockBoard = false;
+    let moves = 0;
+    let pairs = 0;
+    let seconds = 0;
+    let timer = null;
+    let started = false;
+    let round = 0;
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function updateTime() {
+        const min = String(Math.floor(seconds / 60)).padStart(2, "0");
+        const sec = String(seconds % 60).padStart(2, "0");
+        timeEl.textContent = `${min}:${sec}`;
+    }
+
+    function startTimer() {
+        if (started) return;
+        started = true;
+        timer = setInterval(() => {
+            seconds++;
+            updateTime();
+        }, 1000);
+    }
+
+    function flipCard(card) {
+        if (
+            lockBoard ||
+            card.classList.contains("revealed") ||
+            card.classList.contains("matched")
+        ) return;
+
+        startTimer();
+        card.classList.add("revealed");
+        card.textContent = card.dataset.symbol;
+
+        if (!firstCard) {
+            firstCard = card;
+            return;
+        }
+
+        moves++;
+        movesEl.textContent = moves;
+
+        const secondCard = card;
+        const currentRound = round;
+        lockBoard = true;
+
+        if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
+            firstCard.classList.add("matched");
+            secondCard.classList.add("matched");
+            pairs++;
+            pairsEl.textContent = `${pairs} / 8`;
+            firstCard = null;
+            lockBoard = false;
+
+            if (pairs === 8) {
+                clearInterval(timer);
+                statusEl.textContent =
+                    `🎉 You won in ${moves} moves and ${timeEl.textContent}!`;
+            } else {
+                statusEl.textContent = "Great! Pair found!";
+            }
+        } else {
+            statusEl.textContent = "Not a match. Try again!";
+
+            setTimeout(() => {
+                if (currentRound !== round) return;
+
+                firstCard.classList.remove("revealed");
+                firstCard.textContent = "?";
+                secondCard.classList.remove("revealed");
+                secondCard.textContent = "?";
+                firstCard = null;
+                lockBoard = false;
+            }, 800);
+        }
+    }
+
+    function newGame() {
+        round++;
+        clearInterval(timer);
+
+        firstCard = null;
+        lockBoard = false;
+        moves = 0;
+        pairs = 0;
+        seconds = 0;
+        started = false;
+        timer = null;
+
+        movesEl.textContent = "0";
+        pairsEl.textContent = "0 / 8";
+        updateTime();
+        statusEl.textContent = "Find all matching pairs!";
+
+        const cards = shuffle([...symbols, ...symbols]);
+        board.innerHTML = "";
+
+        cards.forEach((symbol, index) => {
+            const card = document.createElement("button");
+            card.type = "button";
+            card.className = "memory-card";
+            card.textContent = "?";
+            card.dataset.symbol = symbol;
+            card.setAttribute("aria-label", `Card ${index + 1}`);
+            card.addEventListener("click", () => flipCard(card));
+            board.appendChild(card);
+        });
+    }
+
+    resetBtn.addEventListener("click", newGame);
+    newGame();
+})();
+</script>
+{% endblock %}
+'''
+
+path = Path("/mnt/data/games.html")
+path.write_text(content, encoding="utf-8")
+print(f"Готово: {path}")

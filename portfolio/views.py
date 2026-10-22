@@ -7,3 +7,5 @@ def projects_view(request):
     return render(request, 'portfolio/projects.html')
 def skills_view(request):
     return render(request, 'portfolio/skills.html')
+def games(request):
+    return render(request, 'portfolio/games.html')
