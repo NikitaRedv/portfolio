@@ -1,6 +1,4 @@
-from pathlib import Path
-
-content = r'''{% extends 'portfolio/base.html' %}
+{% extends 'portfolio/base.html' %}
 {% block content %}
 <div class="container py-5">
     <div class="text-center mb-5">
@@ -31,7 +29,8 @@ content = r'''{% extends 'portfolio/base.html' %}
             <span>Computer: <strong id="ttt-losses">0</strong></span>
         </div>
 
-        <button type="button" id="ttt-reset" class="btn btn-primary d-block mx-auto mt-3">
+        <button type="button" id="ttt-reset"
+                class="btn btn-primary d-block mx-auto mt-3">
             New Game
         </button>
     </section>
@@ -52,7 +51,8 @@ content = r'''{% extends 'portfolio/base.html' %}
             Find all matching pairs!
         </p>
 
-        <button type="button" id="memory-reset" class="btn btn-primary d-block mx-auto mt-3">
+        <button type="button" id="memory-reset"
+                class="btn btn-primary d-block mx-auto mt-3">
             New Game
         </button>
     </section>
@@ -92,7 +92,7 @@ content = r'''{% extends 'portfolio/base.html' %}
 </div>
 
 <style>
-/* Shared appearance and width */
+/* Общий стиль всех игр */
 .game-section {
     width: 100%;
     max-width: 540px;
@@ -253,6 +253,7 @@ content = r'''{% extends 'portfolio/base.html' %}
 <script>
 (() => {
     const board = document.querySelectorAll(".ttt-cell");
+
     if (!board.length || board[0].dataset.initialized) return;
     board[0].dataset.initialized = "true";
 
@@ -275,10 +276,15 @@ content = r'''{% extends 'portfolio/base.html' %}
 
     function winner(state) {
         for (const [a, b, c] of lines) {
-            if (state[a] && state[a] === state[b] && state[a] === state[c]) {
+            if (
+                state[a] &&
+                state[a] === state[b] &&
+                state[a] === state[c]
+            ) {
                 return state[a];
             }
         }
+
         return state.every(Boolean) ? "draw" : null;
     }
 
@@ -286,7 +292,8 @@ content = r'''{% extends 'portfolio/base.html' %}
         board.forEach((button, i) => {
             button.textContent = cells[i];
             button.disabled = gameOver || Boolean(cells[i]);
-            button.style.color = cells[i] === "X" ? "#a59cff" : "#ff7794";
+            button.style.color =
+                cells[i] === "X" ? "#a59cff" : "#ff7794";
         });
     }
 
@@ -307,6 +314,7 @@ content = r'''{% extends 'portfolio/base.html' %}
         winsEl.textContent = wins;
         drawsEl.textContent = draws;
         lossesEl.textContent = losses;
+
         render();
     }
 
@@ -317,41 +325,55 @@ content = r'''{% extends 'portfolio/base.html' %}
                     cells[i] = mark;
                     const winsHere = winner(cells) === mark;
                     cells[i] = "";
+
                     if (winsHere) return i;
                 }
             }
+
             return -1;
         }
 
         let move = findWinningMove("O");
+
         if (move < 0) move = findWinningMove("X");
         if (move < 0 && !cells[4]) move = 4;
 
         if (move < 0) {
             const corners = [0, 2, 6, 8].filter(i => !cells[i]);
+
             if (corners.length) {
-                move = corners[Math.floor(Math.random() * corners.length)];
+                move = corners[
+                    Math.floor(Math.random() * corners.length)
+                ];
             }
         }
 
         if (move < 0) {
-            const empty = cells.map((value, i) => value ? -1 : i).filter(i => i >= 0);
-            if (empty.length) move = empty[Math.floor(Math.random() * empty.length)];
+            const empty = cells
+                .map((value, i) => value ? -1 : i)
+                .filter(i => i >= 0);
+
+            if (empty.length) {
+                move = empty[Math.floor(Math.random() * empty.length)];
+            }
         }
 
         if (move >= 0) cells[move] = "O";
 
         const result = winner(cells);
+
         if (result) {
             finish(result);
         } else {
             status.textContent = "Your turn — X";
         }
+
         render();
     }
 
     function playerMove(event) {
         const index = Number(event.currentTarget.dataset.cell);
+
         if (gameOver || cells[index]) return;
 
         cells[index] = "X";
@@ -364,6 +386,7 @@ content = r'''{% extends 'portfolio/base.html' %}
 
         render();
         status.textContent = "Computer's turn...";
+
         window.setTimeout(() => {
             if (!gameOver) computerMove();
         }, 300);
@@ -376,8 +399,12 @@ content = r'''{% extends 'portfolio/base.html' %}
         render();
     }
 
-    board.forEach(button => button.addEventListener("click", playerMove));
+    board.forEach(button => {
+        button.addEventListener("click", playerMove);
+    });
+
     document.getElementById("ttt-reset").addEventListener("click", reset);
+
     render();
 })();
 </script>
@@ -385,12 +412,14 @@ content = r'''{% extends 'portfolio/base.html' %}
 <script>
 (() => {
     const canvas = document.getElementById("snake-canvas");
+
     if (!canvas || canvas.dataset.initialized) return;
     canvas.dataset.initialized = "true";
 
     const ctx = canvas.getContext("2d");
     const size = 20;
     const cells = canvas.width / size;
+
     const scoreElement = document.getElementById("snake-score");
     const statusElement = document.getElementById("snake-status");
     const startButton = document.getElementById("snake-start");
@@ -405,19 +434,31 @@ content = r'''{% extends 'portfolio/base.html' %}
 
     function randomFood() {
         let position;
+
         do {
             position = {
                 x: Math.floor(Math.random() * cells),
                 y: Math.floor(Math.random() * cells)
             };
-        } while (snake.some(part => part.x === position.x && part.y === position.y));
+        } while (
+            snake.some(part =>
+                part.x === position.x && part.y === position.y
+            )
+        );
+
         return position;
     }
 
     function drawCell(x, y, color, radius = 4) {
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.roundRect(x * size + 1, y * size + 1, size - 2, size - 2, radius);
+        ctx.roundRect(
+            x * size + 1,
+            y * size + 1,
+            size - 2,
+            size - 2,
+            radius
+        );
         ctx.fill();
     }
 
@@ -426,6 +467,7 @@ content = r'''{% extends 'portfolio/base.html' %}
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.strokeStyle = "rgba(255,255,255,0.04)";
+
         for (let i = 0; i <= cells; i++) {
             ctx.beginPath();
             ctx.moveTo(i * size, 0);
@@ -438,33 +480,44 @@ content = r'''{% extends 'portfolio/base.html' %}
             ctx.stroke();
         }
 
-        if (food) drawCell(food.x, food.y, "#ff4f70", 8);
+        if (food) {
+            drawCell(food.x, food.y, "#ff4f70", 8);
+        }
 
         snake.forEach((part, index) => {
-            drawCell(part.x, part.y, index === 0 ? "#a59cff" : "#6c63ff");
+            drawCell(
+                part.x,
+                part.y,
+                index === 0 ? "#a59cff" : "#6c63ff"
+            );
         });
     }
 
     function startGame() {
         clearInterval(timer);
+
         snake = [
             { x: 10, y: 10 },
             { x: 9, y: 10 },
             { x: 8, y: 10 }
         ];
+
         direction = { x: 1, y: 0 };
         nextDirection = { x: 1, y: 0 };
         score = 0;
         running = true;
         food = randomFood();
+
         scoreElement.textContent = score;
         statusElement.textContent = "Good luck!";
+
         draw();
         timer = setInterval(tick, 120);
     }
 
     function tick() {
         direction = nextDirection;
+
         const head = {
             x: snake[0].x + direction.x,
             y: snake[0].y + direction.y
@@ -517,9 +570,16 @@ content = r'''{% extends 'portfolio/base.html' %}
         };
 
         const candidate = directions[dir];
+
         if (!candidate) return;
 
-        if (candidate.x === -direction.x && candidate.y === -direction.y) return;
+        if (
+            candidate.x === -direction.x &&
+            candidate.y === -direction.y
+        ) {
+            return;
+        }
+
         nextDirection = candidate;
     }
 
@@ -533,20 +593,28 @@ content = r'''{% extends 'portfolio/base.html' %}
 
         const dir = keys[event.key];
         const snakeSection = document.getElementById("snake");
-        if (dir && snakeSection.getBoundingClientRect().top < window.innerHeight) {
+
+        if (
+            dir &&
+            snakeSection.getBoundingClientRect().top < window.innerHeight
+        ) {
             event.preventDefault();
             changeDirection(dir);
         }
     });
 
-    document.querySelectorAll(".snake-mobile-controls button").forEach(button => {
-        button.addEventListener("click", () => changeDirection(button.dataset.dir));
-    });
+    document.querySelectorAll(".snake-mobile-controls button")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                changeDirection(button.dataset.dir);
+            });
+        });
 
     startButton.addEventListener("click", startGame);
 
     food = { x: 15, y: 10 };
     snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }];
+
     draw();
 })();
 </script>
@@ -554,6 +622,7 @@ content = r'''{% extends 'portfolio/base.html' %}
 <script>
 (() => {
     const board = document.getElementById("memory-board");
+
     if (!board || board.dataset.initialized) return;
     board.dataset.initialized = "true";
 
@@ -562,7 +631,11 @@ content = r'''{% extends 'portfolio/base.html' %}
     const pairsEl = document.getElementById("memory-pairs");
     const statusEl = document.getElementById("memory-status");
     const resetBtn = document.getElementById("memory-reset");
-    const symbols = ["🐱", "🐶", "🦊", "🐼", "🐸", "🦁", "🐵", "🐰"];
+
+    const symbols = [
+        "🐱", "🐶", "🦊", "🐼",
+        "🐸", "🦁", "🐵", "🐰"
+    ];
 
     let firstCard = null;
     let lockBoard = false;
@@ -578,18 +651,22 @@ content = r'''{% extends 'portfolio/base.html' %}
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
+
         return array;
     }
 
     function updateTime() {
         const min = String(Math.floor(seconds / 60)).padStart(2, "0");
         const sec = String(seconds % 60).padStart(2, "0");
+
         timeEl.textContent = `${min}:${sec}`;
     }
 
     function startTimer() {
         if (started) return;
+
         started = true;
+
         timer = setInterval(() => {
             seconds++;
             updateTime();
@@ -601,9 +678,12 @@ content = r'''{% extends 'portfolio/base.html' %}
             lockBoard ||
             card.classList.contains("revealed") ||
             card.classList.contains("matched")
-        ) return;
+        ) {
+            return;
+        }
 
         startTimer();
+
         card.classList.add("revealed");
         card.textContent = card.dataset.symbol;
 
@@ -617,18 +697,22 @@ content = r'''{% extends 'portfolio/base.html' %}
 
         const secondCard = card;
         const currentRound = round;
+
         lockBoard = true;
 
         if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
             firstCard.classList.add("matched");
             secondCard.classList.add("matched");
+
             pairs++;
             pairsEl.textContent = `${pairs} / 8`;
+
             firstCard = null;
             lockBoard = false;
 
             if (pairs === 8) {
                 clearInterval(timer);
+
                 statusEl.textContent =
                     `🎉 You won in ${moves} moves and ${timeEl.textContent}!`;
             } else {
@@ -642,8 +726,10 @@ content = r'''{% extends 'portfolio/base.html' %}
 
                 firstCard.classList.remove("revealed");
                 firstCard.textContent = "?";
+
                 secondCard.classList.remove("revealed");
                 secondCard.textContent = "?";
+
                 firstCard = null;
                 lockBoard = false;
             }, 800);
@@ -664,31 +750,33 @@ content = r'''{% extends 'portfolio/base.html' %}
 
         movesEl.textContent = "0";
         pairsEl.textContent = "0 / 8";
+
         updateTime();
+
         statusEl.textContent = "Find all matching pairs!";
 
         const cards = shuffle([...symbols, ...symbols]);
+
         board.innerHTML = "";
 
         cards.forEach((symbol, index) => {
             const card = document.createElement("button");
+
             card.type = "button";
             card.className = "memory-card";
             card.textContent = "?";
             card.dataset.symbol = symbol;
             card.setAttribute("aria-label", `Card ${index + 1}`);
+
             card.addEventListener("click", () => flipCard(card));
+
             board.appendChild(card);
         });
     }
 
     resetBtn.addEventListener("click", newGame);
+
     newGame();
 })();
 </script>
 {% endblock %}
-'''
-
-path = Path("/mnt/data/games.html")
-path.write_text(content, encoding="utf-8")
-print(f"Готово: {path}")
